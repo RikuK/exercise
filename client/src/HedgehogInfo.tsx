@@ -5,6 +5,7 @@ interface Props {
 }
 
 export function HedgehogInfo({ hedgehogId }: Props) {
+  console.log("HedgehogInfo component rendered with hedgehogId:", hedgehogId);
   return (
     <Paper
       elevation={3}

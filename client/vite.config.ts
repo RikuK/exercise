@@ -9,6 +9,10 @@ const serverOptions: CommonServerOptions = {
   proxy: {
     '/api': 'http://server:3003',
   },
+  watch: {
+    usePolling: true,
+	interval: 100
+  }
 };
 
 export default defineConfig({

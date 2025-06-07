@@ -3,7 +3,8 @@ import { HedgehogInfo } from "./HedgehogInfo";
 import HedgeHogList from "./HedgehogList";
 import { Map } from "./Map";
 import { Box, Paper, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Hedgehog } from "@shared/hedgehog";
 
 export function App() {
   // Latest coordinates from the Map click event
@@ -12,6 +13,29 @@ export function App() {
   const [selectedHedgehogId, setSelectedHedgehogId] = useState<number | null>(
     null
   );
+  const [hedgehogs, setHedgehogs] = useState<Hedgehog[]>([]);
+  // Fetch all hedgehog's during startup
+  useEffect(() => {
+    const getAllHedgehogs = async () => {
+      try {
+        const res = await fetch("/api/v1/hedgehog");
+        if (!res.ok) return;
+
+        const json = await res.json();
+        setHedgehogs(json?.hedgehogs || []);
+        console.log(`Fetched hedgehogs: ${JSON.stringify(json?.hedgehogs)}`);
+      } catch (err) {
+        console.error(`Error while fetching hedgehogs: ${err}`);
+      }
+    };
+
+    getAllHedgehogs();
+  }, []);
+
+  const handleAddHedgehog = (newHedgehog: Hedgehog) => {
+    setHedgehogs(prev => [...prev, newHedgehog]);
+    setSelectedHedgehogId(newHedgehog.id);
+  };
 
   return (
     <Box
@@ -47,10 +71,10 @@ export function App() {
           overflow: "hidden",
         }}
       >
-        <HedgeHogList />
+        <HedgeHogList hedgehogs={hedgehogs} onSelect={id => setSelectedHedgehogId(id)}/>
         <Box>
           <HedgehogInfo hedgehogId={selectedHedgehogId} />
-          <HedgehogForm coordinates={coordinates || []} />
+          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog}/>
         </Box>
         <Paper elevation={3} sx={{ margin: "1em" }}>
           <Map

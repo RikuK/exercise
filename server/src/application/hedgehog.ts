@@ -18,3 +18,14 @@ export async function getAllHedgehogs() {
 // TODO: Yksittäisen siilin hakeminen tietokannasta ID:llä
 
 // TODO: Yksittäisen siilin lisäämisen sovelluslogiikka
+export async function addHedgehog() {
+  try {
+    const inserted = await getPool().one(
+      sql.type(hedgehogSchema)`INSERT INTO hedgehog DEFAULT VALUES RETURNING id`
+    );
+
+    return inserted;
+  } catch (error) {
+    logger.error(error);
+  }
+}
