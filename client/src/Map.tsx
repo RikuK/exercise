@@ -11,6 +11,8 @@ import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { toLonLat } from 'ol/proj';
+import { FeatureLike } from 'ol/Feature';
+import Geometry from 'ol/geom/Geometry';
 
 interface Props {
   children?: ReactNode;
@@ -34,8 +36,8 @@ export function Map({ children, onMapClick, features }: Props) {
     });
   });
 
-  const styleByFeature = (feature: GeoJSON.Feature) => {
-    const color = feature.get('color') || "#00B2A0"; // fallback to blue if color not set
+  const styleByFeature = (feature: FeatureLike) => {
+    const color = feature.get('color') as string || "#00B2A0"; // fallback to blue if color not set
 
     return new Style({
       image: new Circle({
@@ -85,15 +87,13 @@ export function Map({ children, onMapClick, features }: Props) {
     const layers = olMap.getLayers().getArray();
 
     const source = (layers[1] as VectorLayer<VectorSource>).getSource();
-    const olFeatures = features.map(
+    const olFeatures: Feature<Geometry>[] = features.map(
       (f) => {
-        const result = new Feature({
+        return new Feature<Geometry>({
           geometry: new GeoJSON().readGeometry(f.geometry),
-        })
-        result.setProperties({ color: f.color });
-        return result;
-      }
-    );
+          color: f.properties?.color,
+        });
+      });
     source?.clear();
     source?.addFeatures(olFeatures);
   }, [features]);

@@ -6,6 +6,7 @@ import { Box, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Hedgehog, HedgehogListItem } from "@shared/hedgehog";
 import { fromLonLat } from 'ol/proj';
+import { GeoJSON } from "ol/format";
 
 export function App() {
   // Latest coordinates from the Map click event
@@ -47,6 +48,31 @@ export function App() {
     setSelectedCoordinates(coordinates);
   };
 
+  const features: GeoJSON.Feature<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>[] = [];
+  if (selectedCoordinates?.length === 2) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: fromLonLat(selectedCoordinates),
+      },
+      properties: {
+        color: "#00B2A0",
+      },
+    });
+  }
+  if (coordinates?.length === 2) {
+    features.push({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: fromLonLat(coordinates),
+      },
+      properties: {
+        color: "#b22222"
+      }
+    });
+  }
   return (
     <Box
       sx={{
@@ -89,26 +115,7 @@ export function App() {
         <Paper elevation={3} sx={{ margin: "1em" }}>
           <Map
             onMapClick={(coordinates) => setCoordinates(coordinates)}
-            // Esimerkki siitä, miten kartalle voidaan välittää siilien koordinaatteja GeoJSON -arrayssä
-            features={[
-              selectedCoordinates?.length === 2 &&
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  coordinates: fromLonLat(selectedCoordinates),
-                }
-              },
-              coordinates?.length === 2 &&
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  coordinates: fromLonLat(coordinates),
-                },
-                color: "#b22222"
-              },
-            ]}
+            features={features}
           />
         </Paper>
       </Box>
