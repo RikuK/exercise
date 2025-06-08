@@ -85,6 +85,7 @@ export function Map({ children, onMapClick, features }: Props) {
           geometry: new GeoJSON().readGeometry(geometry.geometry),
         })
     );
+    source?.clear();
     source?.addFeatures(olFeatures);
   }, [features]);
 

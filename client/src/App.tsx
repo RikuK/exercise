@@ -4,16 +4,19 @@ import HedgeHogList from "./HedgehogList";
 import { Map } from "./Map";
 import { Box, Paper, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Hedgehog } from "@shared/hedgehog";
+import { Hedgehog, HedgehogListItem } from "@shared/hedgehog";
+import { fromLonLat } from 'ol/proj';
 
 export function App() {
   // Latest coordinates from the Map click event
   const [coordinates, setCoordinates] = useState<number[]>();
+  // Selected hedgehog's coordinates
+  const [selectedCoordinates, setSelectedCoordinates] = useState<number[]>();
   // ID of the currently selected hedgehog
   const [selectedHedgehogId, setSelectedHedgehogId] = useState<number | null>(
     null
   );
-  const [hedgehogs, setHedgehogs] = useState<Hedgehog[]>([]);
+  const [hedgehogs, setHedgehogs] = useState<HedgehogListItem[]>([]);
   // Fetch all hedgehog's during startup
   useEffect(() => {
     const getAllHedgehogs = async () => {
@@ -22,8 +25,11 @@ export function App() {
         if (!res.ok) return;
 
         const json = await res.json();
-        setHedgehogs(json?.hedgehogs || []);
-        console.log(`Fetched hedgehogs: ${JSON.stringify(json?.hedgehogs)}`);
+        setHedgehogs(
+          (json?.hedgehogs ?? []).map((h: Hedgehog): HedgehogListItem => ({
+            id: h.id,
+            name: h.name,
+          })));
       } catch (err) {
         console.error(`Error while fetching hedgehogs: ${err}`);
       }
@@ -32,9 +38,13 @@ export function App() {
     getAllHedgehogs();
   }, []);
 
-  const handleAddHedgehog = (newHedgehog: Hedgehog) => {
+  const handleAddHedgehog = (newHedgehog: HedgehogListItem) => {
     setHedgehogs(prev => [...prev, newHedgehog]);
     setSelectedHedgehogId(newHedgehog.id);
+  };
+
+  const handleCoordinatesChange = (coordinates: number[]) => {
+    setSelectedCoordinates(coordinates);
   };
 
   return (
@@ -71,27 +81,23 @@ export function App() {
           overflow: "hidden",
         }}
       >
-        <HedgeHogList hedgehogs={hedgehogs} onSelect={id => setSelectedHedgehogId(id)}/>
-        <Box>
-          <HedgehogInfo hedgehogId={selectedHedgehogId} />
-          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog}/>
+        <HedgeHogList hedgehogs={hedgehogs} onSelect={id => setSelectedHedgehogId(id)} selected={selectedHedgehogId} />
+        <Box sx={{ overflow: 'auto' }}>
+          <HedgehogInfo hedgehogId={selectedHedgehogId} setSelectedCoordinates={handleCoordinatesChange} />
+          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog} />
         </Box>
         <Paper elevation={3} sx={{ margin: "1em" }}>
           <Map
             onMapClick={(coordinates) => setCoordinates(coordinates)}
             // Esimerkki siitä, miten kartalle voidaan välittää siilien koordinaatteja GeoJSON -arrayssä
             features={[
+              selectedCoordinates?.length === 2 &&
               {
                 type: "Feature",
                 geometry: {
                   type: "Point",
-                  coordinates: [2859167.020281517, 9632038.56757201],
-                },
-                properties: {
-                  name: "Siili Silvennoinen",
-                  age: 50,
-                  gender: "male",
-                },
+                  coordinates: fromLonLat(selectedCoordinates),
+                }
               },
             ]}
           />
