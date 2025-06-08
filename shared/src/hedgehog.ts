@@ -8,7 +8,7 @@ export const baseHedgehogSchema = z.object({
   name: z.string().min(1, "Name is required").max(32).regex(/^[A-Za-zÀ-ž ]+$/, {
     message: 'Only letters and spaces allowed',
   }),
-});
+}).strict();
 
 export const hedgehogSchema = baseHedgehogSchema.extend({
   age: z.number().int().min(0).max(99),
@@ -17,9 +17,9 @@ export const hedgehogSchema = baseHedgehogSchema.extend({
     z.number().min(-180).max(180), // longitude
     z.number().min(-90).max(90),   // latitude
   ]),
-});
+}).strict();
 
-export const newHedgehogSchema = hedgehogSchema.omit({ id: true });
+export const newHedgehogSchema = hedgehogSchema.omit({ id: true }).strict();
 
 export type Hedgehog = z.infer<typeof hedgehogSchema>;
 export type HedgehogListItem = Pick<Hedgehog, 'id' | 'name'>;
