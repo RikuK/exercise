@@ -4,10 +4,11 @@ import { Paper, Typography, TextField, Select, MenuItem, InputLabel, FormControl
 
 interface Props {
   coordinates: number[];
-  onAdd: (hedgehog: HedgehogListItem) => void; // If you want to use the Hedgehog type 
+  onAdd: (hedgehog: HedgehogListItem) => void; // If you want to use the Hedgehog type
+  updateCoordinates: (coordinates: number[]) => void;
 }
 
-export function HedgehogForm({ coordinates, onAdd }: Props) {
+export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
   const [name, setName] = useState('');
   const [age, setAge] = useState<number | ''>(0);
   const [sex, setSex] = useState('male');
@@ -18,6 +19,10 @@ export function HedgehogForm({ coordinates, onAdd }: Props) {
     setLatitude(coordinates[1]);
     setLongitude(coordinates[0]);
   }, [coordinates]);
+
+  const updateMapCoordinates = (lat: number, lon: number) => {
+    updateCoordinates([lon, lat]);
+  };
 
   const addHedgehog = async () => {
     try {
@@ -44,6 +49,7 @@ export function HedgehogForm({ coordinates, onAdd }: Props) {
   const clearFields = () => {
     setName('');
     setAge(0);
+    updateCoordinates([]);
   }
 
   return (
@@ -94,7 +100,9 @@ export function HedgehogForm({ coordinates, onAdd }: Props) {
         label="Latitude"
         type="number"
         value={latitude ?? ''}
-        onChange={(e) => setLatitude(e.target.value === '' ? '' : Number(e.target.value))}
+        onChange={(e) => {
+          updateMapCoordinates(Number(e.target.value), longitude);
+        }}
         margin="normal"
         inputProps={{ step: 'any', min: -90, max: 90 }}
         required
@@ -105,7 +113,9 @@ export function HedgehogForm({ coordinates, onAdd }: Props) {
         label="Longitude"
         type="number"
         value={longitude ?? ''}
-        onChange={(e) => setLongitude(e.target.value === '' ? '' : Number(e.target.value))}
+        onChange={(e) => {
+          updateMapCoordinates(latitude, Number(e.target.value));
+        }}
         margin="normal"
         inputProps={{ step: 'any', min: -180, max: 180 }}
         required

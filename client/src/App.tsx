@@ -84,7 +84,7 @@ export function App() {
         <HedgeHogList hedgehogs={hedgehogs} onSelect={id => setSelectedHedgehogId(id)} selected={selectedHedgehogId} />
         <Box sx={{ overflow: 'auto' }}>
           <HedgehogInfo hedgehogId={selectedHedgehogId} setSelectedCoordinates={handleCoordinatesChange} />
-          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog} />
+          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog} updateCoordinates={setCoordinates} />
         </Box>
         <Paper elevation={3} sx={{ margin: "1em" }}>
           <Map
@@ -98,6 +98,15 @@ export function App() {
                   type: "Point",
                   coordinates: fromLonLat(selectedCoordinates),
                 }
+              },
+              coordinates?.length === 2 &&
+              {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: fromLonLat(coordinates),
+                },
+                color: "#b22222"
               },
             ]}
           />

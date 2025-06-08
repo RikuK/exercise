@@ -34,6 +34,18 @@ export function Map({ children, onMapClick, features }: Props) {
     });
   });
 
+  const styleByFeature = (feature: GeoJSON.Feature) => {
+    const color = feature.get('color') || "#00B2A0"; // fallback to blue if color not set
+
+    return new Style({
+      image: new Circle({
+        radius: 7,
+        fill: new Fill({ color: color }),
+        stroke: new Stroke({ color: "darkblue", width: 3 }),
+      }),
+    });
+  };
+
   /**
    * OpenLayers Map: @see https://openlayers.org/en/latest/apidoc/module-ol_Map-Map.html
    * "For a map to render, a view, one or more layers, and a target container are needed" -docs
@@ -50,13 +62,7 @@ export function Map({ children, onMapClick, features }: Props) {
         }),
         new VectorLayer({
           source: new VectorSource(),
-          style: new Style({
-            image: new Circle({
-              radius: 7,
-              fill: new Fill({ color: "#00B2A0" }),
-              stroke: new Stroke({ color: "darkblue", width: 3 }),
-            }),
-          }),
+          style: styleByFeature,
         }),
       ],
     });
@@ -80,10 +86,13 @@ export function Map({ children, onMapClick, features }: Props) {
 
     const source = (layers[1] as VectorLayer<VectorSource>).getSource();
     const olFeatures = features.map(
-      (geometry) =>
-        new Feature({
-          geometry: new GeoJSON().readGeometry(geometry.geometry),
+      (f) => {
+        const result = new Feature({
+          geometry: new GeoJSON().readGeometry(f.geometry),
         })
+        result.setProperties({ color: f.color });
+        return result;
+      }
     );
     source?.clear();
     source?.addFeatures(olFeatures);
