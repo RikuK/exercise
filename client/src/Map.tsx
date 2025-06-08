@@ -10,6 +10,7 @@ import Fill from "ol/style/Fill";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import { toLonLat } from 'ol/proj';
 
 interface Props {
   children?: ReactNode;
@@ -66,7 +67,9 @@ export function Map({ children, onMapClick, features }: Props) {
     olMap.setTarget(mapRef.current as HTMLElement);
 
     olMap.on("click", (event) => {
-      onMapClick(event.coordinate);
+      // Converts from EPSG:3857 to EPSG:4326
+      const result = toLonLat(event.coordinate);
+      onMapClick(result);
     });
   }, [olMap]);
 
