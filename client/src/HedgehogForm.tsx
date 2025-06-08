@@ -14,6 +14,7 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
   const [sex, setSex] = useState('male');
   const [latitude, setLatitude] = useState<number | ''>(coordinates[1] || '');
   const [longitude, setLongitude] = useState<number | ''>(coordinates[0] || '');
+  const [isValidateFields, setValidateFields] = useState<boolean>(false);
 
   useEffect(() => {
     setLatitude(coordinates[1]);
@@ -25,6 +26,10 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
   };
 
   const addHedgehog = async () => {
+    setValidateFields(true);
+    if (!validateName(name) || !validateAge(age) || !validateLatitude(latitude) || !validateLongitude(longitude)) {
+      return;
+    }
     try {
       const res = await fetch("/api/v1/hedgehog/add", {
         method: 'POST',
@@ -50,7 +55,20 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
     setName('');
     setAge(0);
     updateCoordinates([]);
+    setValidateFields(false);
   }
+
+  const validateName = (name: string): boolean =>
+    /^[A-Za-zÀ-ž ]{1,32}$/.test(name);
+
+  const validateAge = (age: number | ''): boolean =>
+    Number.isInteger(age) && +age >= 0 && +age <= 99;
+
+  const validateLatitude = (lat: number | ''): boolean =>
+    !isNaN(+lat) && +lat >= -90 && +lat <= 90;
+
+  const validateLongitude = (lon: number | ''): boolean =>
+    !isNaN(+lon) && +lon >= -180 && +lon <= 180;
 
   return (
     <Paper
@@ -67,6 +85,8 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         value={name ?? ''}
         onChange={(e) => setName(e.target.value)}
         margin="normal"
+        error={isValidateFields && !validateName(name)}
+        helperText={isValidateFields && !validateName(name) && "Max length is 32 characters, only letters and spaces allowed."}
         required
       />
 
@@ -77,7 +97,8 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         value={age ?? 0}
         onChange={(e) => setAge(e.target.value === '' ? '' : Number(e.target.value))}
         margin="normal"
-        inputProps={{ min: 0 }}
+        inputProps={{ min: 0, max: 99 }}
+        error={isValidateFields && !validateAge(age)}
         required
       />
 
@@ -101,10 +122,11 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         type="number"
         value={latitude ?? ''}
         onChange={(e) => {
-          updateMapCoordinates(Number(e.target.value), longitude);
+          updateMapCoordinates(Number(e.target.value), longitude || 0);
         }}
         margin="normal"
         inputProps={{ step: 'any', min: -90, max: 90 }}
+        error={isValidateFields && !validateLatitude(latitude)}
         required
       />
 
@@ -114,10 +136,11 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         type="number"
         value={longitude ?? ''}
         onChange={(e) => {
-          updateMapCoordinates(latitude, Number(e.target.value));
+          updateMapCoordinates(latitude || 0, Number(e.target.value));
         }}
         margin="normal"
         inputProps={{ step: 'any', min: -180, max: 180 }}
+        error={isValidateFields && !validateLongitude(longitude)}
         required
       />
 

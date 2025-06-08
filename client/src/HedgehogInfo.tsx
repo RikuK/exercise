@@ -36,7 +36,7 @@ export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
     }
   };
 
-  const updateHedgehog = (hedgehog) => {
+  const updateHedgehog = (hedgehog: Hedgehog) => {
     setHedgehog(hedgehog);
     setSelectedCoordinates(hedgehog.coordinates ?? []);
   }
