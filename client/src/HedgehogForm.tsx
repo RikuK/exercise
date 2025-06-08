@@ -78,7 +78,7 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         padding: "1em",
       }}
     >
-      <Typography variant="h6">Lisää uusi havainto</Typography>
+      <Typography variant="h6" sx={{ borderBottom: '3px solid #a1e6df' }}>Lisää uusi havainto</Typography>
       <TextField
         fullWidth
         label="Nimi"
@@ -103,7 +103,14 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
       />
 
       <FormControl fullWidth margin="normal" required>
-        <InputLabel id="sex-label">Sukupuoli</InputLabel>
+        <InputLabel
+          id="sex-label"
+          sx={{
+            backgroundColor: 'white',
+          }}
+        >
+          Sukupuoli
+        </InputLabel>
         <Select
           labelId="sex-label"
           value={sex}
@@ -112,7 +119,7 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         >
           <MenuItem value="male">Uros</MenuItem>
           <MenuItem value="female">Naaras</MenuItem>
-          <MenuItem value="">Tuntematon</MenuItem>
+          <MenuItem value="unknown">Tuntematon</MenuItem>
         </Select>
       </FormControl>
 
@@ -144,7 +151,7 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
         required
       />
 
-      <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }} onClick={addHedgehog}>
+      <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }} onClick={addHedgehog} fullWidth>
         Lisää havainto
       </Button>
     </Paper>

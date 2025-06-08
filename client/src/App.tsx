@@ -30,7 +30,7 @@ export function App() {
           (json?.hedgehogs ?? []).map((h: Hedgehog): HedgehogListItem => ({
             id: h.id,
             name: h.name,
-          })));
+          })).sort((a: HedgehogListItem, b: HedgehogListItem) => a.id - b.id));
       } catch (err) {
         console.error(`Error while fetching hedgehogs: ${err}`);
       }

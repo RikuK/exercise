@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, TextField, CircularProgress, Grid } from "@mui/material";
+import { Box, Paper, Typography, TextField, Grid, Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Hedgehog } from "@shared/hedgehog";
 
@@ -8,10 +8,44 @@ interface Props {
 }
 
 const sexLabelMap: Record<string, string> = {
-  "": "Tuntematon",
+  "unknown": "Tuntematon",
   "male": "Uros",
   "female": "Naaras",
 };
+
+const loadingPlaceholder = () => {
+  const textFieldPaceholder = () => (
+    <Skeleton
+      variant="rectangular"
+      height={56}
+      width="100%"
+      animation="wave"
+      sx={{
+        '&::after': {
+          animationDuration: '0.8s'
+        },
+      }}
+    />
+  );
+  return (
+    <>
+      {textFieldPaceholder()}
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          {textFieldPaceholder()}
+        </Grid>
+        <Grid item xs={6}>
+          {textFieldPaceholder()}
+        </Grid>
+        <Grid item xs={6}>
+          {textFieldPaceholder()}
+        </Grid>
+        <Grid item xs={6}>
+          {textFieldPaceholder()}
+        </Grid>
+      </Grid>
+    </>);
+}
 
 export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
   const [hedgehog, setHedgehog] = useState<Hedgehog | null>(null);
@@ -62,27 +96,33 @@ export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
       }}
     >
       <Box display="flex" flexDirection="column" gap={2}>
-        <Typography variant="h6">Havainnon tiedot</Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            borderBottom: '3px solid #a1e6df'
+          }}
+        >
+          Havainnon tiedot
+        </Typography>
         {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-            <CircularProgress />
-          </Box>
+          loadingPlaceholder()
         ) : !hedgehog ? (
           <Typography variant="body1">Valitse rekisteröity siili nähdäksesi lisätiedot</Typography>
         ) : <>
           <TextField label="Nimi" value={hedgehog?.name ?? ""} InputProps={{ readOnly: true }} />
           <Grid container spacing={2}>
             <Grid item xs={6}>
-              <TextField label="Ikä" value={hedgehog?.age ?? "0"} InputProps={{ readOnly: true }} />
+              <TextField label="Ikä" value={hedgehog?.age ?? "0"} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={6}>
-              <TextField label="Sukupuoli" value={sexLabelMap[hedgehog?.sex ?? ""]} InputProps={{ readOnly: true }} />
+              <TextField label="Sukupuoli" value={sexLabelMap[hedgehog?.sex ?? ""]} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={6}>
               <TextField
                 label="Latitude"
                 value={hedgehog?.coordinates?.[1] ?? ""}
                 InputProps={{ readOnly: true }}
+                fullWidth
               />
             </Grid>
             <Grid item xs={6}>
@@ -90,6 +130,7 @@ export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
                 label="Longitude"
                 value={hedgehog?.coordinates?.[0] ?? ""}
                 InputProps={{ readOnly: true }}
+                fullWidth
               />
             </Grid>
           </Grid>
