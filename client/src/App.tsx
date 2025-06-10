@@ -2,8 +2,8 @@ import { HedgehogForm } from "./HedgehogForm";
 import { HedgehogInfo } from "./HedgehogInfo";
 import HedgeHogList from "./HedgehogList";
 import { Map } from "./Map";
-import { Box, Paper, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Box, Paper, Typography, Tabs, Tab } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { Hedgehog, HedgehogListItem } from "@shared/hedgehog";
 import { fromLonLat } from 'ol/proj';
 import { GeoJSON } from "ol/format";
@@ -18,6 +18,7 @@ export function App() {
     null
   );
   const [hedgehogs, setHedgehogs] = useState<HedgehogListItem[]>([]);
+  const [tabIndex, setTabIndex] = useState(0);
   // Fetch all hedgehog's during startup
   useEffect(() => {
     const getAllHedgehogs = async () => {
@@ -41,7 +42,17 @@ export function App() {
 
   const handleAddHedgehog = (newHedgehog: HedgehogListItem) => {
     setHedgehogs(prev => [...prev, newHedgehog]);
-    setSelectedHedgehogId(newHedgehog.id);
+    handleSelectedChange(newHedgehog.id);
+  };
+
+  const handleSelectedChange = (id: number) => {
+    setSelectedHedgehogId(id);
+    setTabIndex(1);
+  };
+
+  const handleMapClick = (coordinates: number[]) => {
+    setCoordinates(coordinates);
+    setTabIndex(0);
   };
 
   const handleCoordinatesChange = (coordinates: number[]) => {
@@ -107,18 +118,56 @@ export function App() {
           overflow: "hidden",
         }}
       >
-        <HedgeHogList hedgehogs={hedgehogs} onSelect={id => setSelectedHedgehogId(id)} selected={selectedHedgehogId} />
-        <Box sx={{ overflow: 'auto' }}>
-          <HedgehogInfo hedgehogId={selectedHedgehogId} setSelectedCoordinates={handleCoordinatesChange} />
-          <HedgehogForm coordinates={coordinates || []} onAdd={handleAddHedgehog} updateCoordinates={setCoordinates} />
-        </Box>
+        <HedgeHogList hedgehogs={hedgehogs} onSelect={id => handleSelectedChange(id)} selected={selectedHedgehogId} />
+        <Paper elevation={3} sx={{
+          margin: "1em 0em 1em 0em",
+          overflow: "auto"
+        }}>
+          <Tabs
+            value={tabIndex}
+            onChange={
+              (_event: React.SyntheticEvent, newValue: number) => setTabIndex(newValue)
+            }
+            aria-label="hedgehog tabs"
+            TabIndicatorProps={{ style: { display: 'none' } }}
+            variant="fullWidth"
+            sx={{
+              '& button:not(.Mui-selected)': {
+                backgroundColor: '#a1e6df',
+                color: 'darkslategrey !important',
+              },
+              '& button.Mui-selected': {
+                color: '#00B2A0 !important',
+              },
+            }}>
+            <Tab label="Lisää uusi havainto" />
+            <Tab label="Havainnon tiedot" />
+          </Tabs>
+
+          <Box>
+            {tabIndex === 0 && (
+              <HedgehogForm
+                coordinates={coordinates || []}
+                onAdd={handleAddHedgehog}
+                updateCoordinates={setCoordinates}
+              />
+            )}
+
+            {tabIndex === 1 && (
+              <HedgehogInfo
+                hedgehogId={selectedHedgehogId}
+                setSelectedCoordinates={handleCoordinatesChange}
+              />
+            )}
+          </Box>
+        </Paper>
         <Paper elevation={3} sx={{ margin: "1em" }}>
           <Map
-            onMapClick={(coordinates) => setCoordinates(coordinates)}
+            onMapClick={handleMapClick}
             features={features}
           />
         </Paper>
-      </Box>
+      </Box >
       <Box
         sx={{
           backgroundColor: "#00B2A0",
@@ -135,6 +184,6 @@ export function App() {
           Powered by Ubigu Oy
         </Typography>
       </Box>
-    </Box>
+    </Box >
   );
 }

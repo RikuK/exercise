@@ -1,6 +1,6 @@
 import { HedgehogListItem } from "@shared/hedgehog";
 import { useState, useEffect } from "react";
-import { Paper, Typography, TextField, Select, MenuItem, InputLabel, FormControl, Button } from '@mui/material';
+import { Box, TextField, Select, MenuItem, InputLabel, FormControl, Button } from '@mui/material';
 
 interface Props {
   coordinates: number[];
@@ -71,14 +71,9 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
     !isNaN(+lon) && +lon >= -180 && +lon <= 180;
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        margin: "1em 0em 1em 0em",
-        padding: "1em",
-      }}
-    >
-      <Typography variant="h6" sx={{ borderBottom: '3px solid #a1e6df' }}>Lisää uusi havainto</Typography>
+    <Box sx={{
+      padding: "1em",
+    }}>
       <TextField
         fullWidth
         label="Nimi"
@@ -154,6 +149,6 @@ export function HedgehogForm({ coordinates, onAdd, updateCoordinates }: Props) {
       <Button variant="contained" color="primary" type="submit" sx={{ mt: 2 }} onClick={addHedgehog} fullWidth>
         Lisää havainto
       </Button>
-    </Paper>
+    </Box>
   );
 }

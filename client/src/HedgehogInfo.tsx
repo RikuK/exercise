@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, TextField, Grid, Skeleton } from "@mui/material";
+import { Box, Typography, TextField, Grid, Skeleton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Hedgehog } from "@shared/hedgehog";
 
@@ -88,22 +88,10 @@ export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
   }, [hedgehogId]);
 
   return (
-    <Paper
-      elevation={3}
-      sx={{
-        margin: "1em 0em 1em 0em",
-        padding: "1em",
-      }}
-    >
-      <Box display="flex" flexDirection="column" gap={2}>
-        <Typography
-          variant="h6"
-          sx={{
-            borderBottom: '3px solid #a1e6df'
-          }}
-        >
-          Havainnon tiedot
-        </Typography>
+    <Box sx={{
+      padding: "1em",
+    }}>
+      <Box display="flex" flexDirection="column" gap={2} sx={{ margin: "1em 0em 0em 0em" }}>
         {loading ? (
           loadingPlaceholder()
         ) : !hedgehog ? (
@@ -136,6 +124,6 @@ export function HedgehogInfo({ hedgehogId, setSelectedCoordinates }: Props) {
           </Grid>
         </>}
       </Box>
-    </Paper>
+    </Box>
   );
 }
